@@ -1,0 +1,13 @@
+- name: Create ansible-worker user
+  user:
+    name: ansible-worker
+    state: present
+    shell: /bin/bash
+
+- name: Create www directory
+  file:
+    path: /home/ansible-worker/www
+    state: directory
+    owner: ansible-worker
+    group: ansible-worker
+    mode: '0755'

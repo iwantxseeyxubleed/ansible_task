@@ -1,0 +1,54 @@
+- name: Install Git
+  apt:
+    name: git
+    state: present
+  become: yes
+
+- name: Create .ssh directory for ansible-worker
+  file:
+    path: /home/ansible-worker/.ssh
+    state: directory
+    owner: ansible-worker
+    group: ansible-worker
+    mode: '0700'
+
+- name: Copy SSH private key
+  copy:
+    src: ssh_keys/id_rsa
+    dest: /home/ansible-worker/.ssh/id_rsa
+    owner: ansible-worker
+    group: ansible-worker
+    mode: '0600'
+
+- name: Copy SSH public key
+  copy:
+    src: ssh_keys/id_rsa.pub
+    dest: /home/ansible-worker/.ssh/id_rsa.pub
+    owner: ansible-worker
+    group: ansible-worker
+    mode: '0644'
+
+- name: Ensure known_hosts file exists
+  file:
+    path: /home/ansible-worker/.ssh/known_hosts
+    state: touch
+    owner: ansible-worker
+    group: ansible-worker
+    mode: '0644'
+
+- name: Add GitHub to known hosts
+  known_hosts:
+    name: github.com
+    key: "{{ lookup('pipe', 'ssh-keyscan github.com') }}"
+    path: /home/ansible-worker/.ssh/known_hosts
+    owner: ansible-worker
+    group: ansible-worker
+    mode: '0644'
+
+- name: Clone repository
+  git:
+    repo: 'git@github.com:iphilka/stud-template.git'
+    dest: /home/ansible-worker/www/stud-template
+    version: HEAD
+  become: yes
+  become_user: ansible-worker

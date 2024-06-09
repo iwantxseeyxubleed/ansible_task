@@ -1,0 +1,31 @@
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+  become: yes
+
+- name: Copy Nginx config
+  template:
+    src: ansible.iphilka.ru.conf.j2
+    dest: /etc/nginx/sites-available/ansible.iphilka.ru.conf
+  notify: Restart Nginx
+
+- name: Enable Nginx site
+  file:
+    src: /etc/nginx/sites-available/ansible.iphilka.ru.conf
+    dest: /etc/nginx/sites-enabled/ansible.iphilka.ru.conf
+    state: link
+  notify: Restart Nginx
+
+- name: Remove default Nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Restart Nginx
+
+- name: Ensure Nginx is running
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+  become: yes
