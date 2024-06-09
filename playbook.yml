@@ -1,6 +1,6 @@
 - hosts: web
   become: yes
   roles:
-    # - common
+    - common
     - git
     - nginx
